@@ -1,0 +1,73 @@
+{
+  "project_info": {
+    "project_number": "193639466231",
+    "firebase_url": "https://kalob-2b82c.firebaseio.com",
+    "project_id": "kalob-2b82c",
+    "storage_bucket": "kalob-2b82c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:193639466231:android:58828b631258249c",
+        "android_client_info": {
+          "package_name": "com.potalainfotech.kalob"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "193639466231-jolngs7psu3b6m0ad3ol8qdg4ca0bua1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAo97c5pcqcYUMs_2I7t9FNti8NRaApysM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:193639466231:android:1782520dec151ccf",
+        "android_client_info": {
+          "package_name": "com.dogpo.kalobadmin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "193639466231-jolngs7psu3b6m0ad3ol8qdg4ca0bua1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAo97c5pcqcYUMs_2I7t9FNti8NRaApysM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
