@@ -1,6 +1,10 @@
 package com.dogpo.kalobadmin.category;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.dogpo.kalobadmin.R;
+import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,61 +28,79 @@ import java.util.ArrayList;
 public class CategoryActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Context context;
-    ArrayList<MyData> myDatas=new ArrayList<>();
+    ArrayList<MyData> myDatas = new ArrayList<>();
     private MyAdapter adapter;
+    FloatingActionButton fab;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
-        context=this;
+        context = this;
         setupToolBar("Category");
+        getPermission();
         initView();
-       setupRecyclerView();
+        setupRecyclerView();
         setupFirebase();
+    }
+    private void getPermission() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            String[] permission = {
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            };
+
+            ActivityCompat.requestPermissions(this,
+                    permission, 1);
+
+
+        }
     }
 
     private void setupFirebase() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("category");
-       myRef.addChildEventListener(new ChildEventListener() {
-           @Override
-           public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-          appendList(dataSnapshot);
-           }
+        myRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                appendList(dataSnapshot);
+            }
 
-           @Override
-           public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-           }
+            }
 
-           @Override
-           public void onChildRemoved(DataSnapshot dataSnapshot) {
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-           }
+            }
 
-           @Override
-           public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-           }
+            }
 
-           @Override
-           public void onCancelled(DatabaseError databaseError) {
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-           }
-       });
+            }
+        });
     }
 
     private void appendList(DataSnapshot dataSnapshot) {
-        Log.i("kunsangfirebase",dataSnapshot.toString());
-        String name,description,image_url,id;
-        name=dataSnapshot.child("name").getValue(String.class);
-        description=dataSnapshot.child("description").getValue(String.class);
-        image_url=dataSnapshot.child("image_url").getValue(String.class);
-        id=dataSnapshot.child("id").getValue(String.class);
-        MyData myData=new MyData(id,name,description,image_url);
-        if(!myDatas.contains(myData)){
+        Log.i("kunsangfirebase", dataSnapshot.toString());
+        String name, description, image_url, id;
+        name = dataSnapshot.child("name").getValue(String.class);
+        description = dataSnapshot.child("description").getValue(String.class);
+        image_url = dataSnapshot.child("image_url").getValue(String.class);
+        id = dataSnapshot.child("id").getValue(String.class);
+        MyData myData = new MyData(id, name, description, image_url);
+        if (!myDatas.contains(myData)) {
             myDatas.add(myData);
         }
         adapter.notifyDataSetChanged();
@@ -85,23 +108,30 @@ public class CategoryActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void setupRecyclerView() {
-        RecyclerView recyclerView= (RecyclerView) findViewById(R.id.recycler);
-        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
-        adapter=new MyAdapter(context,myDatas);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+        adapter = new MyAdapter(context, myDatas);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(adapter);
 
     }
 
     private void initView() {
+        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(context,CategoryDetailActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 
     private void setupToolBar(String app_name) {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(app_name);
 
     }
@@ -118,7 +148,7 @@ public class CategoryActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
 
         }
     }
