@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dogpo.kalobadmin">
-<uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -21,7 +22,9 @@
         <activity android:name=".category.CategoryActivity" />
         <activity android:name=".content.ContentActivity" />
         <activity android:name=".speaker.SpeakeActivity" />
-        <activity android:name=".category.CategoryDetailActivity"></activity>
+        <activity android:name=".category.CategoryDetailActivity" />
+        <activity android:name=".speaker.SpeakerDetailActivity" />
+        <activity android:name=".content.ContentDetailActivity"></activity>
     </application>
 
 </manifest>

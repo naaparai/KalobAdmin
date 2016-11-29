@@ -26,7 +26,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initView() {
+        findViewById(R.id.buttonSpeaker).setOnClickListener(this);
         findViewById(R.id.buttonCategory).setOnClickListener(this);
+        findViewById(R.id.buttonContent).setOnClickListener(this);
     }
 
     private void setupToolBar(String app_name) {

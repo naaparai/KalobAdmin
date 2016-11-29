@@ -42,7 +42,6 @@ public class CategoryActivity extends AppCompatActivity implements View.OnClickL
         getPermission();
         initView();
         setupRecyclerView();
-        setupFirebase();
     }
     private void getPermission() {
 
@@ -72,6 +71,7 @@ public class CategoryActivity extends AppCompatActivity implements View.OnClickL
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                appendList(dataSnapshot);
 
             }
 
@@ -93,18 +93,30 @@ public class CategoryActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void appendList(DataSnapshot dataSnapshot) {
-        Log.i("kunsangfirebase", dataSnapshot.toString());
-        String name, description, image_url, id;
-        name = dataSnapshot.child("name").getValue(String.class);
-        description = dataSnapshot.child("description").getValue(String.class);
-        image_url = dataSnapshot.child("image_url").getValue(String.class);
-        id = dataSnapshot.child("id").getValue(String.class);
-        MyData myData = new MyData(id, name, description, image_url);
-        if (!myDatas.contains(myData)) {
-            myDatas.add(myData);
-        }
-        adapter.notifyDataSetChanged();
+        try{
+            Log.i("kunsangfirebase", dataSnapshot.toString());
+            String name, description, image_url, id;
+            name = dataSnapshot.child("name").getValue(String.class);
+            description = dataSnapshot.child("description").getValue(String.class);
+            image_url = dataSnapshot.child("image_url").getValue(String.class);
+            id = dataSnapshot.child("id").getValue(String.class);
+            MyData myData = new MyData(id, name, description, image_url);
+            if (!myDatas.contains(myData)) {
+                myDatas.add(myData);
+            }
+            adapter.notifyDataSetChanged();
 
+        }catch (Exception ex){
+            ex.printStackTrace();
+
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setupFirebase();
     }
 
     private void setupRecyclerView() {

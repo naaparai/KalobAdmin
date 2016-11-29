@@ -26,12 +26,14 @@
         android:src="@drawable/ic_edit"
         android:layout_height="120dp" />
     <EditText
+        android:inputType="text"
         android:layout_margin="16dp"
         android:hint="Name"
         android:id="@+id/et_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <EditText
+        android:inputType="text"
         android:layout_margin="16dp"
         android:id="@+id/et_description"
         android:hint="Description"

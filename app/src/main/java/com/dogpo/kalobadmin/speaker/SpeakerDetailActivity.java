@@ -1,4 +1,4 @@
-package com.dogpo.kalobadmin.category;
+package com.dogpo.kalobadmin.speaker;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -9,12 +9,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -24,16 +24,13 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.dogpo.kalobadmin.R;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -48,22 +45,23 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class CategoryDetailActivity extends AppCompatActivity implements View.OnClickListener {
+public class SpeakerDetailActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int PICK_IMAGE = 102;
     String id, image_url = "", name = "", description = "";
-    EditText editTextName, editTextDescription;
+    EditText editTextName, editTextDescription, editTextPriority;
     CircleImageView circleImageView;
     Context context;
-    DatabaseReference _category, _child_category;
+    DatabaseReference _speaker, _child_speaker;
     private boolean changePicFlag = false;
     private String filePath;
     boolean editflag = false;
+    int priority;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_category_detail);
+        setContentView(R.layout.activity_speaker_detail);
         context = this;
         getPermission();
         try {
@@ -73,13 +71,14 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
             name = bundle.getString("name");
             description = bundle.getString("description");
             image_url = bundle.getString("image_url");
+            priority = bundle.getInt("priority");
             editflag = true;
 
         } catch (Exception ex) {
             editflag = false;
             ex.printStackTrace();
         }
-        Log.i("kunsangbool",""+editflag);
+        Log.i("kunsangbool", "" + editflag);
         setupToolBar(name);
         initView();
         setupFirebase();
@@ -102,6 +101,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
 
         }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -113,12 +113,11 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
     }
 
 
-
     private void setupFirebase() {
         FirebaseDatabase _root = FirebaseDatabase.getInstance();
-        _category = _root.getReference().child("category");
+        _speaker = _root.getReference().child("speaker");
         if (editflag) {
-            _child_category = _category.child(id);
+            _child_speaker = _speaker.child(id);
         }
     }
 
@@ -127,7 +126,9 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
         editTextDescription = (EditText) findViewById(R.id.et_description);
         editTextName = (EditText) findViewById(R.id.et_name);
         editTextName.setText(name);
+        editTextPriority = (EditText) findViewById(R.id.et_priority);
         editTextDescription.setText(description);
+        editTextPriority.setText("" + priority);
         Glide.with(context).load(image_url).error(R.drawable.ic_edit).into(circleImageView);
         findViewById(R.id.buttonDelete).setOnClickListener(this);
         findViewById(R.id.buttonSubmit).setOnClickListener(this);
@@ -147,7 +148,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.buttonDelete:
-                _child_category.removeValue();
+                _child_speaker.removeValue();
                 break;
             case R.id.imageView:
                 Intent intent = new Intent();
@@ -158,7 +159,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
             case R.id.buttonSubmit:
                 if (editflag = false && filePath == null) {
                     showMessage("pic needed");
-                    if (editTextName.length() <= 0 && editTextDescription.length() <= 0) {
+                    if (editTextName.length() <= 0 || editTextDescription.length() <= 0 || editTextPriority.length() <= 0) {
                         showMessage("field needed");
                         return;
                     }
@@ -171,8 +172,8 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
                 Map<String, Object> childUpdates = new HashMap<>();
                 childUpdates.put("name", editTextName.getText().toString());
                 childUpdates.put("description", editTextDescription.getText().toString());
-
-                _child_category.updateChildren(childUpdates);
+                childUpdates.put("priority", Integer.parseInt(editTextPriority.getText().toString()));
+                _child_speaker.updateChildren(childUpdates);
                 break;
         }
     }
@@ -258,10 +259,11 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
                     Map<String, Object> childUpdates = new HashMap<>();
                     childUpdates.put("name", editTextName.getText().toString());
                     childUpdates.put("description", editTextDescription.getText().toString());
+                    childUpdates.put("priority", Integer.parseInt(editTextPriority.getText().toString()));
                     childUpdates.put("image_url", downloadUrl.toString());
-                    _child_category.updateChildren(childUpdates);
+                    _child_speaker.updateChildren(childUpdates);
                     showMessage("uploading... please wait");
-                    _child_category.addValueEventListener(new ValueEventListener() {
+                    _child_speaker.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             finish();
@@ -275,49 +277,24 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
                     });
                 } else {
 
-                    Map<String, Object> map = new HashMap<String, Object>();
-                    map.put(myString, "");
-                    _category.updateChildren(map);
-                    _category.addChildEventListener(new ChildEventListener() {
+                    final Map<String, Object> map = new HashMap<String, Object>();
+
+                    String tempKey=_speaker.push().getKey();
+                    _speaker.updateChildren(map);
+                    DatabaseReference _child_speaker = _speaker.child(tempKey);
+                    Map<String, Object> map1 = new HashMap<String, Object>();
+                    map1.put("name", editTextName.getText().toString());
+                    map1.put("description", editTextDescription.getText().toString());
+                    map1.put("priority", Integer.parseInt(editTextPriority.getText().toString()));                    map1.put("image_url", downloadUrl.toString());
+                    map1.put("total_video", 0);
+                    map1.put("id", tempKey);
+                    _child_speaker.updateChildren(map1);
+                    showMessage("uploading... please wait");
+                    _child_speaker.addValueEventListener(new ValueEventListener() {
                         @Override
-                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                            DatabaseReference _child_category = _category.child(myString);
-                            Map<String, Object> map1 = new HashMap<String, Object>();
-                            map1.put("name", editTextName.getText().toString());
-                            map1.put("description", editTextDescription.getText().toString());
-                            map1.put("image_url", downloadUrl.toString());
-                            map1.put("total_video", 0);
-                            map1.put("id", myString);
-                            _child_category.updateChildren(map1);
-                            showMessage("uploading... please wait");
-                            _child_category.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    finish();
-                                    showMessage("uploading done");
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-
-                        }
-
-                        @Override
-                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                        }
-
-                        @Override
-                        public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                        }
-
-                        @Override
-                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            finish();
+                            showMessage("uploading done");
                         }
 
                         @Override
@@ -325,6 +302,8 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
 
                         }
                     });
+
+
 
 
                 }
