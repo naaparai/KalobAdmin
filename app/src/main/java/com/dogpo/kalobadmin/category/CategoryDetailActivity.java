@@ -174,6 +174,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
 
                 _child_category.updateChildren(childUpdates);
                 break;
+
         }
     }
 

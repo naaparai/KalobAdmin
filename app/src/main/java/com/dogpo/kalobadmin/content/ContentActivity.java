@@ -143,7 +143,7 @@ public class ContentActivity extends AppCompatActivity {
         findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(context,CategoryDetailActivity.class);
+                Intent intent=new Intent(context,ContentDetailActivity.class);
                 startActivity(intent);
             }
         });

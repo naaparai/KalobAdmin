@@ -29,11 +29,39 @@
                     android:id="@+id/imageView"
                     android:src="@drawable/ic_edit"
                     android:layout_height="120dp" />
+                <RelativeLayout
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
                 <VideoView
                     android:visibility="visible"
                     android:id="@+id/videoView"
                     android:layout_width="match_parent"
                     android:layout_height="240dp" />
+                    <Button
+                        android:text="Play"
+                        android:layout_alignParentBottom="true"
+                        android:id="@+id/buttonPlay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <Button
+                        android:text="Stop"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentBottom="true"
+                        android:id="@+id/buttonStop"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </RelativeLayout>
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    android:layout_below="@+id/textview">
+
+                    <com.github.rtoshiro.view.video.FullscreenVideoLayout
+                        android:id="@+id/videoview"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </FrameLayout>
                 <Button
                     android:layout_margin="16dp"
                     android:text="Select video"
