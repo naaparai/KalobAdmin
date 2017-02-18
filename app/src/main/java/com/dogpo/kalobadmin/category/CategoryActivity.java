@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 public class CategoryActivity extends AppCompatActivity implements View.OnClickListener {
 
+    //this is test comment
     private Context context;
     ArrayList<MyData> myDatas = new ArrayList<>();
     private MyAdapter adapter;
