@@ -1,18 +1,23 @@
 package com.dogpo.kalobadmin.speaker;
 
 import android.Manifest;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
 
 import com.dogpo.kalobadmin.R;
 import com.github.clans.fab.FloatingActionButton;
@@ -21,15 +26,17 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class SpeakeActivity extends AppCompatActivity implements View.OnClickListener {
+public class SpeakeActivity extends AppCompatActivity implements View.OnClickListener, SearchView.OnQueryTextListener {
 
     private Context context;
     ArrayList<MyData> myDatas = new ArrayList<>();
     private MyAdapter adapter;
-    FloatingActionButton fab;
+    private SearchView searchView;
 
 
     @Override
@@ -41,7 +48,11 @@ public class SpeakeActivity extends AppCompatActivity implements View.OnClickLis
         getPermission();
         initView();
         setupRecyclerView();
+        setupFirebase();
     }
+
+
+
 
     private void getPermission() {
 
@@ -101,10 +112,13 @@ public class SpeakeActivity extends AppCompatActivity implements View.OnClickLis
             description = dataSnapshot.child("description").getValue(String.class);
             image_url = dataSnapshot.child("image_url").getValue(String.class);
             id = dataSnapshot.child("id").getValue(String.class);
-            priority=dataSnapshot.child("priority").getValue(Integer.class);
-            MyData myData = new MyData(id, name, description, image_url,priority);
+            priority = dataSnapshot.child("priority").getValue(Integer.class);
+            MyData myData = new MyData(id, name, description, image_url, priority);
             if (!myDatas.contains(myData)) {
                 myDatas.add(myData);
+            } else {
+                int index = myDatas.indexOf(myData);
+                myDatas.set(index, myData);
             }
             adapter.notifyDataSetChanged();
 
@@ -118,7 +132,6 @@ public class SpeakeActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onResume() {
         super.onResume();
-        setupFirebase();
     }
 
     private void setupRecyclerView() {
@@ -129,6 +142,8 @@ public class SpeakeActivity extends AppCompatActivity implements View.OnClickLis
         recyclerView.setAdapter(adapter);
 
     }
+
+
 
     private void initView() {
         findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
@@ -149,7 +164,6 @@ public class SpeakeActivity extends AppCompatActivity implements View.OnClickLis
         getSupportActionBar().setTitle(app_name);
 
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -161,9 +175,96 @@ public class SpeakeActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        setupFirebase();
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+
+        SearchManager searchManager = (SearchManager)
+                getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchMenuItem = menu.findItem(R.id.search);
+        searchView = (SearchView) searchMenuItem.getActionView();
+
+        searchView.setSearchableInfo(searchManager.
+                getSearchableInfo(getComponentName()));
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(this);
+        MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return false;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                setupFirebase();
+                return false;
+            }
+        });
+        return true;
+    }
+
+    @Override
+    public boolean onSearchRequested() {
+        return super.onSearchRequested();
+    }
+
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
 
         }
     }
+
+    @Override
+    public boolean onQueryTextSubmit(String s) {
+        return false;
+    }
+
+
+
+    @Override
+    public boolean onQueryTextChange(String s) {
+        upDateList(s);
+
+        return false;
+    }
+
+    private void upDateList(String s) {
+        myDatas.clear();
+        adapter.notifyDataSetChanged();
+        DatabaseReference mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        Query query = mFirebaseDatabaseReference.child("speaker").orderByChild("name").startAt(s).limitToFirst(1);
+        query.addValueEventListener(valueEventListener);
+
+
+    }
+    ValueEventListener valueEventListener = new ValueEventListener()
+    {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot)
+        {
+            for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+            {
+                appendList(postSnapshot);
+
+            }
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError)
+        {
+
+        }
+    };
+
 }

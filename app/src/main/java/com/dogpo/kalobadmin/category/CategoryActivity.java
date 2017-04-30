@@ -1,6 +1,7 @@
 package com.dogpo.kalobadmin.category;
 
 import android.Manifest;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -11,8 +12,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
 
 import com.dogpo.kalobadmin.R;
 import com.github.clans.fab.FloatingActionButton;
@@ -21,17 +25,19 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class CategoryActivity extends AppCompatActivity implements View.OnClickListener {
+public class CategoryActivity extends AppCompatActivity implements View.OnClickListener, SearchView.OnQueryTextListener {
 
     //this is test comment
     private Context context;
     ArrayList<MyData> myDatas = new ArrayList<>();
     private MyAdapter adapter;
     FloatingActionButton fab;
+    private SearchView searchView;
 
 
     @Override
@@ -43,6 +49,28 @@ public class CategoryActivity extends AppCompatActivity implements View.OnClickL
         getPermission();
         initView();
         setupRecyclerView();
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+
+        SearchManager searchManager = (SearchManager)
+                getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchMenuItem = menu.findItem(R.id.search);
+        searchView = (SearchView) searchMenuItem.getActionView();
+
+        searchView.setSearchableInfo(searchManager.
+                getSearchableInfo(getComponentName()));
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(this);
+        setupFirebase();
+
+        return true;
+    }
+    @Override
+    public boolean onSearchRequested() {
+        return super.onSearchRequested();
     }
     private void getPermission() {
 
@@ -104,6 +132,9 @@ public class CategoryActivity extends AppCompatActivity implements View.OnClickL
             MyData myData = new MyData(id, name, description, image_url);
             if (!myDatas.contains(myData)) {
                 myDatas.add(myData);
+            }else {
+                int index = myDatas.indexOf(myData);
+                myDatas.set(index, myData);
             }
             adapter.notifyDataSetChanged();
 
@@ -117,7 +148,13 @@ public class CategoryActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
         setupFirebase();
+
     }
 
     private void setupRecyclerView() {
@@ -165,4 +202,44 @@ public class CategoryActivity extends AppCompatActivity implements View.OnClickL
 
         }
     }
+
+    @Override
+    public boolean onQueryTextSubmit(String s) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String s) {
+        upDateList(s);
+
+        return false;
+    }
+    private void upDateList(String s) {
+        myDatas.clear();
+        adapter.notifyDataSetChanged();
+        DatabaseReference mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        Query query = mFirebaseDatabaseReference.child("category").orderByChild("name").startAt(s).limitToFirst(1);
+        query.addValueEventListener(valueEventListener);
+
+
+    }
+    ValueEventListener valueEventListener = new ValueEventListener()
+    {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot)
+        {
+            for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
+            {
+                appendList(postSnapshot);
+
+            }
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError)
+        {
+
+        }
+    };
 }

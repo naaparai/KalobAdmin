@@ -394,7 +394,6 @@ public class ContentDetailActivity extends AppCompatActivity implements View.OnC
                 _child_speech_main.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        showMessage("done updating...");
                         finish();
                     }
 
@@ -422,6 +421,7 @@ public class ContentDetailActivity extends AppCompatActivity implements View.OnC
                 break;
             case R.id.buttonDelete:
                 _child_speech_main.removeValue();
+                finish();
                 break;
         }
 
@@ -500,7 +500,6 @@ public class ContentDetailActivity extends AppCompatActivity implements View.OnC
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             progressDialog.dismiss();
-                            showMessage("uploading done");
                             updateSpeakerVideoCount(speakerId);
                             updateCategoryVideoCount(categoryId);
                             finish();
@@ -773,7 +772,6 @@ public class ContentDetailActivity extends AppCompatActivity implements View.OnC
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             progressDialog.dismiss();
-                            showMessage("uploading done");
                             updateSpeakerVideoCount(speakerId);
                             updateCategoryVideoCount(categoryId);
                             finish();

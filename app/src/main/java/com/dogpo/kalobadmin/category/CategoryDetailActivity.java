@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.dogpo.kalobadmin.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -59,6 +60,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
     private boolean changePicFlag = false;
     private String filePath;
     boolean editflag = false;
+    private MaterialDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +81,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
             editflag = false;
             ex.printStackTrace();
         }
-        Log.i("kunsangbool",""+editflag);
+        Log.i("kunsangbool", "" + editflag);
         setupToolBar(name);
         initView();
         setupFirebase();
@@ -102,6 +104,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
 
         }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -113,7 +116,6 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
     }
 
 
-
     private void setupFirebase() {
         FirebaseDatabase _root = FirebaseDatabase.getInstance();
         _category = _root.getReference().child("category");
@@ -123,6 +125,11 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
     }
 
     private void initView() {
+        progressDialog = new MaterialDialog.Builder(context)
+                .title(R.string.progress_dialog)
+                .content(R.string.please_wait)
+                .progress(true, 0).build();
+
         circleImageView = (CircleImageView) findViewById(R.id.imageView);
         editTextDescription = (EditText) findViewById(R.id.et_description);
         editTextName = (EditText) findViewById(R.id.et_name);
@@ -148,6 +155,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
         switch (v.getId()) {
             case R.id.buttonDelete:
                 _child_category.removeValue();
+                finish();
                 break;
             case R.id.imageView:
                 Intent intent = new Intent();
@@ -164,6 +172,7 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
                     }
                     return;
                 }
+                progressDialog.show();
                 if (changePicFlag) {
                     uploadImage(filePath);
                     return;
@@ -172,7 +181,13 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
                 childUpdates.put("name", editTextName.getText().toString());
                 childUpdates.put("description", editTextDescription.getText().toString());
 
-                _child_category.updateChildren(childUpdates);
+                _child_category.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        progressDialog.dismiss();
+                        finish();
+                    }
+                });
                 break;
 
         }
@@ -255,7 +270,6 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
                 final Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
                 if (editflag) {
-                    Toast.makeText(context, "uploading done", Toast.LENGTH_SHORT).show();
                     Map<String, Object> childUpdates = new HashMap<>();
                     childUpdates.put("name", editTextName.getText().toString());
                     childUpdates.put("description", editTextDescription.getText().toString());
@@ -265,8 +279,8 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
                     _child_category.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
+                            progressDialog.dismiss();
                             finish();
-                            showMessage("uploading done");
                         }
 
                         @Override
@@ -294,8 +308,10 @@ public class CategoryDetailActivity extends AppCompatActivity implements View.On
                             _child_category.addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
+                                    progressDialog.dismiss();
+
                                     finish();
-                                    showMessage("uploading done");
+
                                 }
 
                                 @Override

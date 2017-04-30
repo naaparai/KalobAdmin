@@ -1,21 +1,28 @@
 package com.dogpo.kalobadmin;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.dogpo.kalobadmin.category.CategoryActivity;
 import com.dogpo.kalobadmin.content.ContentActivity;
 import com.dogpo.kalobadmin.speaker.SpeakeActivity;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     Intent intent;
     Context context;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +30,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         context=this;
         setupToolBar("Dashboard");
         initView();
+
+    }
+
+    private void showMessage(String query) {
+        Toast.makeText(context, query, Toast.LENGTH_SHORT).show();
     }
 
     private void initView() {
@@ -65,4 +77,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+
 }

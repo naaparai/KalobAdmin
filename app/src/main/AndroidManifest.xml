@@ -12,16 +12,51 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.SEARCH" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/search" />
+
         </activity>
-        <activity android:name=".category.CategoryActivity" />
-        <activity android:name=".content.ContentActivity" />
-        <activity android:name=".speaker.SpeakeActivity" />
+        <activity
+            android:name=".category.CategoryActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/search" />
+
+        </activity>
+        <activity
+            android:name=".content.ContentActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/search" />
+        </activity>
+        <activity
+            android:name=".speaker.SpeakeActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/search" />
+        </activity>
         <activity android:name=".category.CategoryDetailActivity" />
         <activity android:name=".speaker.SpeakerDetailActivity" />
         <activity android:name=".content.ContentDetailActivity"></activity>

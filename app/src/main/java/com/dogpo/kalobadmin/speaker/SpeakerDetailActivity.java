@@ -22,10 +22,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.dogpo.kalobadmin.R;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -57,6 +60,7 @@ public class SpeakerDetailActivity extends AppCompatActivity implements View.OnC
     private String filePath;
     boolean editflag = false;
     int priority;
+    private MaterialDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +125,12 @@ public class SpeakerDetailActivity extends AppCompatActivity implements View.OnC
         }
     }
 
+
     private void initView() {
+        progressDialog = new MaterialDialog.Builder(context)
+                .title(R.string.progress_dialog)
+                .content(R.string.please_wait)
+                .progress(true, 0).build();
         circleImageView = (CircleImageView) findViewById(R.id.imageView);
         editTextDescription = (EditText) findViewById(R.id.et_description);
         editTextName = (EditText) findViewById(R.id.et_name);
@@ -148,7 +157,10 @@ public class SpeakerDetailActivity extends AppCompatActivity implements View.OnC
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.buttonDelete:
+                progressDialog.show();
                 _child_speaker.removeValue();
+                progressDialog.dismiss();
+                finish();
                 break;
             case R.id.imageView:
                 Intent intent = new Intent();
@@ -157,6 +169,7 @@ public class SpeakerDetailActivity extends AppCompatActivity implements View.OnC
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
                 break;
             case R.id.buttonSubmit:
+
                 if (editflag = false && filePath == null) {
                     showMessage("pic needed");
                     if (editTextName.length() <= 0 || editTextDescription.length() <= 0 || editTextPriority.length() <= 0) {
@@ -165,15 +178,23 @@ public class SpeakerDetailActivity extends AppCompatActivity implements View.OnC
                     }
                     return;
                 }
+                progressDialog.show();
                 if (changePicFlag) {
                     uploadImage(filePath);
                     return;
                 }
+
                 Map<String, Object> childUpdates = new HashMap<>();
                 childUpdates.put("name", editTextName.getText().toString());
                 childUpdates.put("description", editTextDescription.getText().toString());
                 childUpdates.put("priority", Integer.parseInt(editTextPriority.getText().toString()));
-                _child_speaker.updateChildren(childUpdates);
+                _child_speaker.updateChildren(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        progressDialog.dismiss();
+                        finish();
+                    }
+                });
                 break;
         }
     }
@@ -247,6 +268,7 @@ public class SpeakerDetailActivity extends AppCompatActivity implements View.OnC
             @Override
             public void onFailure(@NonNull Exception exception) {
                 // Handle unsuccessful uploads
+
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -262,12 +284,11 @@ public class SpeakerDetailActivity extends AppCompatActivity implements View.OnC
                     childUpdates.put("priority", Integer.parseInt(editTextPriority.getText().toString()));
                     childUpdates.put("image_url", downloadUrl.toString());
                     _child_speaker.updateChildren(childUpdates);
-                    showMessage("uploading... please wait");
                     _child_speaker.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
+                            progressDialog.dismiss();
                             finish();
-                            showMessage("uploading done");
                         }
 
                         @Override
@@ -279,22 +300,22 @@ public class SpeakerDetailActivity extends AppCompatActivity implements View.OnC
 
                     final Map<String, Object> map = new HashMap<String, Object>();
 
-                    String tempKey=_speaker.push().getKey();
+                    String tempKey = _speaker.push().getKey();
                     _speaker.updateChildren(map);
                     DatabaseReference _child_speaker = _speaker.child(tempKey);
                     Map<String, Object> map1 = new HashMap<String, Object>();
                     map1.put("name", editTextName.getText().toString());
                     map1.put("description", editTextDescription.getText().toString());
-                    map1.put("priority", Integer.parseInt(editTextPriority.getText().toString()));                    map1.put("image_url", downloadUrl.toString());
+                    map1.put("priority", Integer.parseInt(editTextPriority.getText().toString()));
+                    map1.put("image_url", downloadUrl.toString());
                     map1.put("total_video", 0);
                     map1.put("id", tempKey);
                     _child_speaker.updateChildren(map1);
-                    showMessage("uploading... please wait");
                     _child_speaker.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
+                            progressDialog.dismiss();
                             finish();
-                            showMessage("uploading done");
                         }
 
                         @Override
@@ -302,8 +323,6 @@ public class SpeakerDetailActivity extends AppCompatActivity implements View.OnC
 
                         }
                     });
-
-
 
 
                 }
